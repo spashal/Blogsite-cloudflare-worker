@@ -1,0 +1,16 @@
+name = "blog-site"
+type = "javascript"
+
+account_id = "62f467ac137fdb66dd9e7ad5e3b3966b"
+workers_dev = true # or zone_id = "<ZONE ID>" if you have one
+
+[build]
+command = "npm run build"
+
+[build.upload]
+dir = "build"
+main = "./index.mjs"
+format = "modules"
+
+[vars]
+REALM_APPID = "blogsite-vyphu"
