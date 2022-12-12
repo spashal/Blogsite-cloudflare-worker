@@ -1,12 +1,15 @@
 var myHeaders = new Headers({
-    'Access-Control-Allow-Origin': 'https://blog-site.palash-sharma.workers.dev/'
+    'Access-Control-Allow-Origin': '*',
+    // 'Access-Control-Allow-Methods': "POST,GET,OPTIONS, PUT, DELETE"
+    // 'Access-Control-Allow-Origin': 'https://blog-site.palash-sharma.workers.dev/'
 });
 
 export function toJSON(data: unknown, status = 200): Response {
     let body = JSON.stringify(data, null, 2);
     let headers = {
-        'content-type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        // 'content-type': "application/json,text/html",
+        'Access-Control-Allow-Origin': '*',
+        // 'Access-Control-Allow-Methods': "POST,GET,OPTIONS,PUT,DELETE",
     };
     return new Response(body, {headers, status});
 }
