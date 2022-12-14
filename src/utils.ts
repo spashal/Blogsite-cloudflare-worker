@@ -7,9 +7,9 @@ var myHeaders = new Headers({
 export function toJSON(data: unknown, status = 200): Response {
     let body = JSON.stringify(data, null, 2);
     let headers = {
-        // 'content-type': "application/json,text/html",
-        'Access-Control-Allow-Origin': '*',
-        // 'Access-Control-Allow-Methods': "POST,GET,OPTIONS,PUT,DELETE",
+        'content-type': "*",
+        'Access-Control-Allow-Origin': 'http://localhost:3000',
+        'Access-Control-Allow-Methods': "POST,GET,OPTIONS,PUT,DELETE",
     };
     return new Response(body, {headers, status});
 }
