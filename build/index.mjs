@@ -7588,9 +7588,16 @@ var environment$1 = {
 setEnvironment(environment$1);
 
 // src/utils.ts
+var myHeaders = new Headers({
+  "Access-Control-Allow-Origin": "*"
+});
 function toJSON(data, status = 200) {
   let body = JSON.stringify(data, null, 2);
-  let headers = { "content-type": "application/json" };
+  let headers = {
+    "content-type": "*",
+    "Access-Control-Allow-Origin": "http://localhost:3000",
+    "Access-Control-Allow-Methods": "POST,GET,OPTIONS,PUT,DELETE"
+  };
   return new Response(body, { headers, status });
 }
 function toError(error, status = 400) {
@@ -7604,6 +7611,29 @@ function reply(output) {
 
 // src/index.ts
 var token = "Ofjgf0isHiLdCTaA8KPdbyOTRsdzpLMQDv28xsIq60eQ3mSSUCHqUMIRrs2f9Hsl";
+var corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
+  "Access-Control-Max-Age": "86400"
+};
+function handleOptions(request) {
+  let headers = request.headers;
+  if (headers.get("Origin") !== null && headers.get("Access-Control-Request-Method") !== null && headers.get("Access-Control-Request-Headers") !== null) {
+    let respHeaders = {
+      ...corsHeaders,
+      "Access-Control-Allow-Headers": "*"
+    };
+    return new Response(null, {
+      headers: respHeaders
+    });
+  } else {
+    return new Response(null, {
+      headers: {
+        Allow: "GET, HEAD, POST, OPTIONS"
+      }
+    });
+  }
+}
 var App2;
 var ObjectId2 = bson_browser_esm_exports.ObjectID;
 var worker = {
@@ -7617,20 +7647,50 @@ var worker = {
     var user = await App2.logIn(credentials);
     var client = user.mongoClient("mongodb-atlas");
     const collection = client.db("blogsite").collection("articles");
+    const users = client.db("blogsite").collection("userdetails");
+    const currentlyworking = client.db("blogsite").collection("currentlyworking");
     try {
       if (method === "GET") {
-        if (path == "/blogsite/allArticles") {
-          return reply(await collection.find({}));
-        } else if (path == "/blogsite/getBlogArticle") {
-          return reply(await collection.findOne({
-            title: articleTitle
-          }));
-        } else {
-          return reply("where tis");
+        if (path === "/blogsite/allArticles") {
+          var responseData = {
+            data: await collection.find({})
+          };
+          return reply(responseData);
+        } else if (path === "/blogsite/getBlogArticle") {
+          var responseArticle = {
+            data: await collection.findOne({
+              title: articleTitle
+            })
+          };
+          return reply(responseArticle);
+        } else if (path === "/blogsite/visitorsCount") {
+          var visitorsCount = {
+            visitors: await users.count({})
+          };
+          return reply(visitorsCount);
+        } else if (path === "/blogsite/getCurrentlyWorking") {
+          var working = {
+            currentlyWorking: (await currentlyworking.find({}))[await currentlyworking.count({}) - 1]
+          };
+          return reply(working);
         }
-        return reply(await collection.find());
+      } else if (method === "POST") {
+        if (path == "/blogsite/putUserDetails") {
+          var userDetails = await req.json();
+          var reply2 = {
+            reply: await users.insertOne({
+              clientLocation: userDetails.location,
+              browser: userDetails.browsername,
+              browser_version: userDetails.browserversion
+            })
+          };
+          return reply(reply2);
+        }
+      } else if (method === "OPTIONS") {
+        console.log("hey there is something here");
+        return handleOptions(req);
       }
-      return toError("Method not allowed.", 405);
+      return toError("Error haha", 403);
     } catch (err) {
       const msg = err.message || "Error with query.";
       return toError(msg, 500);
